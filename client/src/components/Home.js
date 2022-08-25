@@ -3,19 +3,20 @@ import { Card, CardBody, CardHeader, Form, FormGroup, Label, Input, Button, Card
 import { Link } from "react-router-dom"
 import axios from "axios"
 import { useNavigate } from "react-router-dom"
+import ReCAPTCHA from "react-google-recaptcha";
 
 function Home() {
     let navigate = useNavigate()
 
     const [formData, setFormData] = useState({})
-    const [loadingSubmit, setLoadingSubmit] = useState(false)
+    const [loadingSubmit, setLoadingSubmit] = useState(true)
     const [errorMessage, setErrorMessage] = useState("")
     const [apiError, setApiError] = useState(false)
     const [emailVerifyLeft, setEmailVerifyLeft] = useState(false)
 
 
-    const submitAndLogin = () => {
-        console.log(formData)
+    const submitAndLogin = (e) => {
+        e.preventDefault()
 
         axios.post("https://minddefttask.herokuapp.com/public/login", formData)
             .then((res) => {
@@ -42,6 +43,14 @@ function Home() {
             })
     }
 
+    const verifyCaptcha = (value) => {
+        if (value) {
+            setLoadingSubmit(false)
+        }
+    }
+
+
+
     return (
         <div>
             <Card>
@@ -50,7 +59,7 @@ function Home() {
                     Kindly Login to Start...
                     <div style={{ disply: "flex", flexDirection: "row", width: "40%", justifyContent: "center", alignItems: "center", margin: "20px auto" }}>
                         <Card className='p-5'>
-                            <Form>
+                            <Form onSubmit={submitAndLogin}>
                                 <FormGroup>
                                     <div className='my-2'>
                                         <Label>Email</Label>
@@ -71,7 +80,11 @@ function Home() {
                                         {apiError ? <div style={{ color: "red" }}>Error : {errorMessage}</div> : null}
                                         {emailVerifyLeft ? <Link to="/verifyEmail" > Click here to verify</Link> : null }
                                     </div>
-                                    {loadingSubmit ? <Button onClick={submitAndLogin} color="primary" disabled>Login</Button> : <Button onClick={submitAndLogin} color="primary">Login</Button>}
+                                    <ReCAPTCHA
+                                            sitekey="6LeWoqkhAAAAANgW5c9ERjLoMtO_58922LdpAVFB"
+                                            onChange={verifyCaptcha}
+                                        />
+                                    <Button onClick={submitAndLogin} color="primary" disabled={loadingSubmit}>Login</Button>
                                 </FormGroup>
                             </Form>
                             <div>

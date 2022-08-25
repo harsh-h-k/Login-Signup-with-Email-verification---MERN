@@ -157,14 +157,23 @@ const verifyEmail = async (req, res) => {
 const resetPassword = async (req, res) => {
     try {
         const {email, otp, password} = req.body
-        if (!email) {
-            return failResponse(req, res, "Enter email")
+        if (!email || !otp || !password) {
+            return failResponse(req, res, "Enter email, otp and password")
         }
 
+        const validateEmail = validator.isEmail(email)
+        if (!validateEmail) {
+            return failResponse(req, res, "Entered email is inValid")
+        }
+        
         //    Check if user registered or not 
         const checkEmail = await userFuncs.ifEmailAlreadyRegistered(email)
         if (!checkEmail) {
             return failResponse(req, res, "No Account associated with this email found. kindly register")
+        }
+
+        if (password.length < 6) {
+            return failResponse(req, res, "minimum password length required : 6 characters")
         }
 
         const type = "forgotPassword"

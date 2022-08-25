@@ -3,6 +3,7 @@ import { Card, CardBody, CardHeader, Form, FormGroup, Label, Input, Button, Card
 import { Link } from "react-router-dom"
 import axios from 'axios'
 import { useNavigate } from "react-router-dom"
+import ReCAPTCHA from "react-google-recaptcha";
 
 
 function ForgotPassword() {
@@ -11,7 +12,7 @@ function ForgotPassword() {
 
     const [userEmail, setUserEmail] = useState()
     const [otpSend, setOtpSend] = useState(false)
-    const [loadingSubmit, setLoadingSubmit] = useState(false)
+    const [loadingSubmit, setLoadingSubmit] = useState(true)
     const [errorMessage, setErrorMessage] = useState("")
     const [apiError, setApiError] = useState(false)
     const [newPassword, setNewPassword] = useState()
@@ -19,6 +20,7 @@ function ForgotPassword() {
 
     const sendOtp = () => {
         setLoadingSubmit(true)
+        setApiError(false)
         axios.post("https://minddefttask.herokuapp.com/public/resendOtp", {
             email: userEmail,
             type: "forgotPassword"
@@ -44,7 +46,7 @@ function ForgotPassword() {
 
     const resetPassword = () => {
         setLoadingSubmit(true)
-        axios.post("https://minddefttask.herokuapp.com/public/resendOtp", {
+        axios.post("https://minddefttask.herokuapp.com/public/resetPassword", {
             email: userEmail,
             otp,
             password: newPassword
@@ -69,6 +71,12 @@ function ForgotPassword() {
             })
     }
 
+    const verifyCaptcha = (value) => {
+        if (value) {
+            setLoadingSubmit(false)
+        }
+    }
+
 
     return (
         <>
@@ -89,16 +97,23 @@ function ForgotPassword() {
                                 {otpSend ?
                                     <>
                                         <Label>Enter Otp</Label>
-                                        <Input onChange={e => setOtp(e.target.value)}/>
+                                        <Input onChange={e => setOtp(e.target.value)} />
                                         <Label>Enter New Password</Label>
                                         <Input onChange={e => setNewPassword(e.target.value)} />
                                         <div className='my-1'>
-                                        {loadingSubmit ? <Button onClick={resetPassword} color="primary" disabled>Reset Password</Button> : <Button onClick={resetPassword} color="primary">Reset Password</Button>}
+                                             <Button onClick={resetPassword} color="primary" disabled={loadingSubmit}>Reset Password</Button> 
                                         </div>
                                     </>
 
                                     : <>
-                                        {loadingSubmit ? <Button onClick={sendOtp} color="primary" disabled>Send Otp</Button> : <Button onClick={sendOtp} color="primary">Send Otp</Button>}
+                                    <div className='my-2'>
+                                    <ReCAPTCHA
+                                            sitekey="6LeWoqkhAAAAANgW5c9ERjLoMtO_58922LdpAVFB"
+                                            onChange={verifyCaptcha}
+                                        />
+                                    </div>
+                                        
+                                        <Button onClick={sendOtp} color="primary" disabled={loadingSubmit} >Send Otp</Button>
                                     </>}
 
                             </FormGroup>

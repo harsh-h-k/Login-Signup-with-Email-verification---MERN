@@ -3,13 +3,15 @@ import { Card, CardBody, CardHeader, Form, FormGroup, Label, Input, Button, Card
 import { Link } from "react-router-dom"
 import axios from 'axios'
 import { useNavigate } from "react-router-dom"
+import ReCAPTCHA from "react-google-recaptcha";
+
 
 function Signup() {
 
     let navigate = useNavigate()
 
     const [formData, setFormData] = useState({})
-    const [loadingSubmit, setLoadingSubmit] = useState(false)
+    const [loadingSubmit, setLoadingSubmit] = useState(true)
     const [errorMessage, setErrorMessage] = useState("")
     const [apiError, setApiError] = useState(false)
     const [registered, setRegistered] = useState(false)
@@ -36,6 +38,13 @@ function Signup() {
                 console.log(err)
             })
     }
+
+    const verifyCaptcha = (value) => {
+        if (value) {
+            setLoadingSubmit(false)
+        }
+    }
+
 
     const verifyOtp = () => {
         console.log(otp)
@@ -139,7 +148,12 @@ function Signup() {
                                             {apiError ? <div style={{ color: "red" }}>Error : {errorMessage}</div> : null}
                                         </div>
 
-                                        {loadingSubmit ? <Button onClick={registerUser} color="primary" disabled>Signup</Button> : <Button onClick={registerUser} color="primary">Signup</Button>}
+                                        <ReCAPTCHA
+                                            sitekey="6LeWoqkhAAAAANgW5c9ERjLoMtO_58922LdpAVFB"
+                                            onChange={verifyCaptcha}
+                                        />
+
+                                        <Button onClick={registerUser} color="primary" disabled={loadingSubmit}>Signup</Button> 
 
                                     </FormGroup>
                                 </Form>
